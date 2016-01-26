@@ -14,7 +14,11 @@ int main() {
         if (n == -1) {
             break;
         }
-        if (n & 1 || n == 0) {
+        if (n == 0) {
+            cout << 1 << endl;
+            continue;
+        }
+        if (n & 1) {
             cout << 0 << endl;
             continue;
         }

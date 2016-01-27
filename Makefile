@@ -15,4 +15,4 @@ test_tri_tiling:
 	echo -e '0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n-1' | ./tri_tiling
 
 test_tothemax: tothemax
-	echo -e '4\n 0 -2 -7 0 9 2 -6 2\n -4 1 -4  1 -1 \n8  0 -2' | ./tothemax
+	./tothemax < tothemaxtestinput.txt

@@ -7,6 +7,7 @@ int find_max_sub_rectangle(int **matrix, int n);
 int main() {
     int n;
     scanf("%d", &n);
+    printf("n = %d\n", n);
     int **matrix = malloc(sizeof(int**)*n);
     for (int i = 0; i < n; ++i) {
         matrix[i] =  malloc(sizeof(int*)*n);
@@ -16,57 +17,57 @@ int main() {
             scanf("%d", &matrix[x][y]);
         }
     }
-    int ans = find_max_sub_rectangle((int**)matrix, n);
+    int ans = find_max_sub_rectangle(matrix, n);
     printf("%d\n", ans);
     return 0;
 }
 
 int find_max_sub_rectangle(int **matrix, int n) {
-    int ***table = malloc(sizeof(int**)*n);
-    for (int i = 0; i < n; ++i) {
-        table[i] =  malloc(sizeof(int*)*n);
-    }
     int max = INT_MIN;
-    for (int c = 0; c < n; ++c) {
-        for (int r = 0; r < n; ++r) {
-            table[c][r] = malloc(sizeof(int)*(c+1)*(r+1));
-            table[c][r][0] = matrix[c][r];
-            if (table[c][r][0] > max) {
-                max = table[c][r][0];
-            }
-            int h;
-            for (h = 1; h <= r; ++h) {
-                table[c][r][h] = table[c][r][h-1] + matrix[c][r-h];
-                printf("%d %d %d = %d + %d\n", c, r, h, table[c][r][h-1], matrix[c][r-h]);
+    int ***table = malloc(sizeof(int**) * n);
 
-                if (table[c][r][h] > max) {
-                    max = table[c][r][h];
+    for (int i = 0; i < n; ++i) {
+        table[i] = malloc(sizeof(int*) * n);
+    }
+
+    n--;
+    for (int c = 0; c <= n; ++c) {
+        for (int r = 0; r <= n; ++r) {
+            // Free old values here
+            table[n-c][n-r] = malloc(sizeof(int) * (c + 1) * (r + 1));
+            int h;
+            for (h = 0; h < (n - (n - (r + 1))); ++h) {
+                if (h == 0) {
+                    table[n-c][n-r][h] = matrix[n-c][n-r];
+                    if (table[n-c][n-r][h] > max) {
+                        max = table[n-c][n-r][h];
+                    }
+                } else {
+                    table[n-c][n-r][h] = matrix[n-c][n-r] +
+                        table[n-c][n-r+1][h-1];
+                    if (table[n-c][n-r][h] > max) {
+                        max = table[n-c][n-r][h];
+                    }
                 }
             }
-            if (r > 0) {
-                // The indexing below here is goofed up
-                for (; h < (c+r); ++h) {
-                    table[c][r][h] = table[c][r-1][h] + table[c][r][h-1];
-                    printf("%d %d %d = c\n", c, r, h);
-                    //printf("%d %d %d = %d + %d\n", c, r, h, table[c][r-1][h], matrix[c][r-h]);
-                    if (table[c][r][h] > max) {
-                        max = table[c][r][h];
+
+            if (c > 0) {
+                int row = 0;
+                for (; h < (c+1)*(r+1); ++h) {
+                    if ((h%(r+1)) == 0) {
+                        row++;
+                    }
+                    table[n-c][n-r][h] = table[n-c][n-r][h- row*(r+1)] +
+                        table[n-c+1][n-r][h-(r+1)];
+                    if (table[n-c][n-r][h] > max) {
+                        max = table[n-c][n-r][h];
                     }
                 }
-                for (; h < (c+1)*(1+r); ++h) {
-                    table[c][r][h] = table[c][r][(c+1)*r] + table[c][r][r-h];
-                    printf("%d %d %d = c\n", c, r, h);
-                    //printf("%d %d %d = %d + %d\n", c, r, h, table[c][r-1][h], matrix[c][r-h]);
-                    if (table[c][r][h] > max) {
-                        max = table[c][r][h];
-                    }
-                }
-            } else {
-                printf("%d %d %d = ?\n", c, r, h);
             }
         }
     }
-    // Printing
+    n++;
+
     for (int c = 0; c < n; ++c) {
         for (int r = 0; r < n; ++r) {
             int *arr = table[c][r];
@@ -77,12 +78,6 @@ int find_max_sub_rectangle(int **matrix, int n) {
             printf("\n");
         }
     }
-    // Let the OS collect our garbage
-    /*
-    for (int i = 0; i < n*n; ++i) {
-        free(table[i]);
-    }
-    free(table);
-    */
+
     return max;
 }

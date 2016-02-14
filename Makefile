@@ -1,7 +1,7 @@
 CXX=g++
 CC=gcc
 CXXFLAGS=-std=c++98 -Werror -Wpedantic -Wall -Wextra
-CFLAGS=-std=c99 -Werror -Wpedantic -Wall -Wextra -g
+CFLAGS=-ansi -Werror -Wpedantic -Wall -Wextra -g
 
 all: tri_tiling
 

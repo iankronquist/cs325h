@@ -16,3 +16,9 @@ test_tri_tiling:
 
 test_tothemax: tothemax
 	./tothemax < tothemaxtestinput.txt
+
+droppingballs: droppingballs.c
+	${CC} droppingballs.c -o droppingballs ${CFLAGS}
+
+test_droppingballs: droppingballs
+	./droppingballs < droppingballsinput.txt

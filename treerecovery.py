@@ -1,3 +1,5 @@
+from sys import stdin
+
 class Tree:
     def __init__(self, value, left=None, right=None):
         self.left = left
@@ -28,5 +30,6 @@ def tree_recovery(pre, post):
     return n
 
 if __name__ == '__main__':
-    t = tree_recovery("DBACEGF", "ABCDEFG")
-    print(t)
+    for line in stdin:
+        trs = line.split(' ')
+        print(tree_recovery(trs[0], trs[1]))

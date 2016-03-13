@@ -1,0 +1,192 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{anysize}
+\usepackage{amsmath}
+\marginsize{2cm}{2cm}{1cm}{1cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \vspace*{4cm}
+    \begin{flushright}
+    {\huge
+        CS 325 Honors Assignment 2\\[1cm]
+    }
+    {\large
+        Divide and Conquer Algorithms
+    }
+    \end{flushright}
+    \begin{flushleft}
+    \end{flushleft}
+    \begin{flushright}
+    Ian Kronquist
+    \end{flushright}
+
+\end{titlepage}
+
+
+\section{Tree Recovery}
+
+\subsection{Discussion}
+The Tree Recovery problem (UVA 536) is relatively simple. Given the preorder
+traversal of a tree and its in order traversal, give its post order traversal.
+The algorithm relies on a few key insights. First, the root node of a tree is
+always the first element of its preorder traversal. Second, in an in order
+traversal, everything to the right of the root node is in the right subtree and
+everything to the left is in the left subtree. Finally, the length of the
+subtree is the same in both representations. It is quickly evident that this
+is a divide and conquer problem. Each subtree can be recursively examined to
+find its root, and then split along its left and right halves. The base cases
+are when the pre or post order traversal is empty, in which case the node is
+NULL, and when the traversal has length 1, in which case the contents of the
+string form a leaf node.
+
+\subsection{Description}
+Starting at the root of the tree, the algorithm iterates over the in order
+traversal searching for the root node of the subtree. It then splits the in
+order traversal on the root node which was found, and repeats the process on
+the left and right halves.
+This is a recursive algorithm which executes in $\Omega(nlog(n))$ time. We can
+derive this runtime solving the following recurrence relation $D(n) = 2D(n/2) +
+O(n)$. The worst case runtime is $O(n^2)$ because the pathological case is a tree
+which leans left and each node only has one child. In this case the whole pre
+order traversal must be inspected for each subtree in order to find the root.
+
+
+\subsection{Pseudocode}
+\begin{verbatim}
+tree_recovery(pre_order, in_order):
+    if |pre_order| == 1:
+        return Tree(pre_order[0])
+    else if |pre_order| == 0:
+        return NULL
+    root = pre_order[0]
+    for i = 0...|in_order|:
+        if in_order[i] == root:
+            break
+    left = tree_recovery(pre_order[1...i+1], in_order[...i])
+    right = tree_recovery(pre_order[i+1...], in_order[i+1...])
+    return Tree(root, left, right)
+\end{verbatim}
+
+\subsection{Proof of Correctness}
+Claim: the above algorithm is correct.\\
+Inductive hypothesis: Assume that the algorithm returns a correct binary tree
+given a pre order traversal of a tree and an in order traversal. Assume that
+there are no duplicate nodes in the tree.
+\begin{enumerate}
+\item Base case 1: If there is one element in the pre order traversal, it is
+trivially the root, and the lengths of the pre order and in order traversals
+are both 1.
+\item Base case 2: If there are no elements in the traversal, there are no
+elements in the tree, and the lengths of the pre and in order traversals are
+both 0.
+\item By construction, the first element of a pre order traversal is the root
+element of the tree.
+\item By construction, for a tree of size s, the next n elements after the root
+are part of a subtree, for $n \in [0, s]$.
+\item Since each element of the tree is unique, the root element can only be in
+the in order traversal once. It can be found by inspecting each element in the
+traversal.
+\item By construction, the root of the in order traversal has $s_l$ elements to
+its left, and $s_r$ elements to its right.
+\item The lengths of both traversals are the same since they both list every
+node in the tree.
+\item By 4 and 5, there is a left subtree immediately following the root
+element of a length equal to $s_l$.
+\item Similarly, there is a right subtree immediately following the left
+subtree of length $s_r$.
+\item Therefore, the left subtree stretches from the root element to $s_l$
+elements to its left.
+\item Similarly, the right subtree stretches from the end of the left subtree
+to $s_l$ elements to the left.
+\item By the inductive hypothesis, the left subtree can be constructed.
+\item By the inductive hypothesis, the right subtree can also be constructed.
+\item By combining the two subtrees under a root node we create a correct
+binary tree.
+\end{enumerate}
+
+\subsection{Implementation}
+The algorithm I described was somewhat obnoxious to implement in C because C
+strings do not know their own length. Since Python strings do know about their
+own length and the University of Virginia online judge accepts submissions
+written in Python 3, I elected to mix things up and use Python for this
+problem.
+
+
+\section{Dropping Balls}
+\subsection{Discussion}
+The Dropping Balls problem (UVA 679) at first appears quite complex, but ends
+up reducing to a straightforward binary tree traversal. The problem describes a
+machine similar to some children's toys, where dropping a ball into a series of
+tubes will flip a series of gates which alter the next balls path. The naive
+approach to solving the problem would be to simulate it. Given I balls and a
+tree of depth D the naive approach would take about $O(I log(D))$ time and
+$\Theta(2^D)$ space. However, there is a straightforward tail recursive
+solution with $O(1)$ space and $O(log(I))$ time, which is quite fast compared
+to most problems we've explored in class. Additionally, the tail recursion
+makes it easy to transform the recursive solution into an iterative one,
+reaping additional efficiency gains for the actual implementation.
+
+\subsection{Description}
+The tree in question is a full binary search tree, so its largest node has
+value $2^D-1$. When this node value is exceeded, there are no more children and
+the algorithm should terminate.
+The base case of the recursive algorithm occurs when, for some node value $n$,
+$2n > 2^D-1$, that is, the node value exceeds the maximum.
+The recursive case depends on how many balls have been dropped previously. If
+this value, let's call it $D$ is odd, then the gate is set such that we should
+consider the right subtree.
+Similarly, if it is even, we should consider the left subtree. The value of the
+node at the left subtree is $2n$, and that of the right subtree is $2n+1$. For
+the next step the value of the ball will actually be changed since the problem
+is now equivalent to solving the problem for the last ball which went down this
+subtree. Since we only need to 'drop' one ball down the tree, and merely update
+the value of the ball to represent the last ball which went down this path, we
+will only walk down the tree once, giving us a runtime of $\Theta(n)$ if given
+input in terms of size $n$ which is the size of the tree. Since we are only
+manipulating two variables our space constraints are $\Theta(1)$. This can be
+calculated with the recurrence
+relation $T(n) = T(\frac{n}{2})$.
+
+\begin{align}
+\sum_{i = 0}^{log_2(n)} i \Theta(\frac{n}{2^i}) &= \Theta(\sum_{i = 0}^{log_2(n)}\frac{in}{2^i})\\
+    &= \Theta(log_2(n)\frac{n}{2^{log_2(n)}})\\
+    &= \Theta(log(n))\\
+\end{align}
+
+
+
+\subsection{Pseudocode}
+Recursive version:
+\begin{verbatim}
+let max = 2^D
+drop_balls(I, D):
+    if 2I > max:
+        return I
+    if D is even:
+        return drop_balls(I*2+1, D/2)
+    else:
+        return drop_balls(I*2, D/2+1)
+\end{verbatim}
+
+Iterative version:
+\begin{verbatim}
+let max = 2^D
+drop_balls(I, D):
+    while I*2 < max:
+        if D is even:
+            I = I * 2 + 1
+            D = D / 2
+        else:
+            I = I * 2
+            D = D * 2 + 1
+\end{verbatim}
+
+
+\subsection{Implementation}
+The iterative version is easy to write in idiomatic C and is very fast. When
+calculating the max number you can use bit shifting since calculating powers of
+2 is fast.
+
+
+\end{document}

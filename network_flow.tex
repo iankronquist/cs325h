@@ -1,0 +1,79 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{anysize}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\marginsize{2cm}{2cm}{1cm}{1cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \vspace*{4cm}
+    \begin{flushright}
+    {\huge
+        CS 325 Honors Assignment 3\\[1cm]
+    }
+    {\large
+        Network Flow Algorithms
+    }
+    \end{flushright}
+    \begin{flushleft}
+    \end{flushleft}
+    \begin{flushright}
+    Ian Kronquist
+    \end{flushright}
+
+\end{titlepage}
+
+
+\section{Great Wall of China (UVa 11301)}
+Given a map of cells each of which contain a number representing the cost of visiting that cell, find the cheapest way to travel starting from various points on the left side of the map to the other side of the map. Each cell is marked with its integer cost, except for some cells on the left hand side of the map which are marked with @ signs to denote that is where the travellers start from. Additionally, note that the travellers' paths must not cross. Assume there is zero cost for these starting positions. Although one might get the impression from initially reading this problem that it is best solved with dynamic programming, it is actually better solved by reduction to network flow.
+
+\subsection{Reduction}
+Consider a map M. Several cells on the left edge of the map are marked with @ signs, representing starting points. The remaining cells of the map are marked with the cost of visiting them. Each cost is a positive integer or zero. The graph is laid out as a rectangular matrix. Note that unlike the regular version of a network flow graph, each edge on this graph has a cost as well as a capacity. This cost is not governed by the balance and capacity constraints, and can be accrued multiple times.
+
+To transform this to a network flow problem, we must first transform the map into a graph. First associate every cell in the map with a vertex in the graph. All edges we will create on the graph will have unit capacity.
+
+Since we can only travel from left to right, add an edge from each vertex to the vertex whose cell is at its right, should it have an cell to its right. Let the cost of travelling along the edge be the cost of the cell on the map in the graph. Next, observe that the travellers can travel vertically along the graph. Add edges from each vertex to the vertices which correspond to the cells above and below it on the map. Again, these edges have a cost corresponding to the value of the cells being visited.
+
+Now the graph has been built, but the source and sink vertices have not been defined. Since the goal is to reach and cell on the right hand side of the map, edges can be added from the vertices corresponding to the cells on the right to the sink vertex. These edges should have no cost to visit. Recall that certain cells on the left hand side of the map are marked as starting points. To connect a source vertex, merely add edges from the source to each of the starting points. Each of these edges has no cost.
+
+This graph has a direct mapping to the original map, and finding the min-cost max-flow on this graph is equivalent to finding the cheapest route for all of the travellers to journey along the map. This can be found using the Ford and Fulkerson algorithm as described in Professor Ericson's notes.
+
+\section{Dining (Peking 3281)}
+A farmer has a herd of N cows which are picky eaters. Each cow prefers one of F different foods and D different drinks. The goal is to maximize the number of cows whose preferences are fulfilled. Each food and each drink can only be consumed once.
+
+\subsection{Reduction}
+A key insight is that foods and drinks can be viewed as two sets in a bipartite graph and an individual cow's preference is a matching of foods to drinks. If a cow prefers steak and red wine, there is an edge with unit capacity from the vertex representing steak to the vertex representing red wine. If, on less classy days, this cow would also be content with a hamburger and a milkshake, there is not only a unit capacity edge from the hamburger vertex to the milkshake vertex, but also a similar edge from the hamburger vertex to the red wine vertex and another edge from the steak vertex to the milkshake vertex. If another cow prefers hamburgers and milkshakes, then the capacity of the edge from the vertex representing hamburgers to the vertex representing milkshakes can be incremented by one.
+
+Next we need to ensure that each food can only be consumed once. To do this, add a duplicate set of food vertices to the graph, which we will call the food' vertices, and add an edge of capacity one from each food' vertex to the corresponding food vertex. That is, if there is a steak vertex in the graph, add a steak' vertex and add an edge of capacity one from the steak' vertex to the steak vertex.
+
+However, each cow can only have its preferences fulfilled once. We can use the capacity constraints to ensure that a cow's preference is not fulfilled multiple times. Create a set of vertices which represent the cows. For each food which a given cow prefers, add and edge from the cow to the corresponding food' vertex. Now we need to connect the cows to the source vertex. Create an dge of capacity one from the sink vertex to each cow vertex. Now, for a group of n cows there is a maximum flow of n which can go through the graph.
+
+This quadripartite graph describes the cows' preferences, but it does not have a sink vertex. Connecting a sink vertex to the graph is simple. Since only one cow can consume a milkshake, add an edge with capacity one from the vertex representing milkshakes to the sink vertex. Repeat this process for all the drink vertices.
+
+The resulting graph has one unit of capacity representing each possible food and drink combination a cow is happy with. To determine the maximum number of cows whose wishes can be satisfied, find the max flow from the source vertex to the sink vertex using Ford and Fulkerson's algorithm. The resulting number representing the max flow is the number of cows whose needs are satisfied.
+
+\subsection{Proof of Correctness}
+To prove that this reduction is correct we must show that the resulting graph is a valid representation of the problem. We must show the following:
+\begin{enumerate}
+\item Each cow can only have its preferences fulfilled once. That is, there can only be one unit of flow going through each cow vertex.
+\item Each food can only be consumed once. In terms of the graph, only one unit of flow can pass through each food vertex.
+\item Each drink can only be consumed once. This means that only one unit of flow can pass through each drink vertex.
+\item For each cow c, given a food preference f and a drink preference d, there is a path from source to sink which passes through the cow vertex, the food vertex, and the drink vertex.
+\end{enumerate}
+
+\subsubsection{Lemma of Correctness}
+Given an acyclic graph G with integer capacities, the maximum flow across this graph is the same as the number of cows whose needs are satisfied. As sub-lemmas we must show that each food and drink can only be consumed once, and each cow's preference can only be fulfilled once.
+
+
+\subsubsection{Proof}
+\begin{enumerate}
+\item Only be one unit of flow going through each cow vertex. There is only one unit of flow from the source to each cow, and there are no other units of flow entering the cow. Therefore, if the balance constraint holds, the cow vertex can have at most one unit of flow going through it.
+\item Only one unit of flow can pass through each food vertex. Each cow's food preference is connected to the appropriate food' vertices, and each food vertex is connected to the appropriate drink vertices. However, there is only one unit of flow from the food' vertex to the food vertex. Therefore, if the capacity constraint holds, only one unit of flow can enter each food vertex.
+\item Only one unit of flow can pass through each drink vertex. Since there is only one edge exiting each drink vertex, and these edges each have unit capacity, if the balance constraint holds only a single unit of flow may pass through the drink vertex.
+\item For each cow c, given a food preference f and a drink preference d, there is a path from source to sink which passes through the cow vertex, the food vertex, and the drink vertex. By construction, there is an edge from the sink to each cow vertex. Next, each cow vertex has edges of unit capacity stretching to all the food' vertices which the cow prefers. Then there is an edge from the food' vertex to the corresponding food vertex. After that comes the most complicated part of the graph. By construction, for each of all the cow's possible pair of food, drink preferences, there is a path from the food vertex to the drink vertex. Finally, there is a path from each drink vertex to the sink vertex. Thus, for any selection of a cow c and single food and drink preferences f and d, we have traced a path from the source, to the sink, through all of these vertices. The relation "Cow c prefers food f and drink d" is represented in the graph.
+\end{enumerate}
+Thus we have shown that the graph represents the problem constraints. Each cow can only have its preferences fulfilled once, each food and drink can only be consumed once, and there is a path from source to sink representing each cow preference combination. Ford and Fulkerson's algorithm can find a maximum flow along the graph, and each unit of flow represents the successful fulfillment of a cow's deepest bovine desires.
+
+\end{document}

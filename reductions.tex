@@ -1,0 +1,54 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{anysize}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\marginsize{2cm}{2cm}{1cm}{1cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \vspace*{4cm}
+    \begin{flushright}
+    {\huge
+        CS 325 Honors Assignment 4\\[1cm]
+    }
+    {\large
+        Reductions
+    }
+    \end{flushright}
+    \begin{flushleft}
+    \end{flushleft}
+    \begin{flushright}
+    Ian Kronquist
+    \end{flushright}
+
+\end{titlepage}
+
+
+\section*{Problem 2}
+\begin{enumerate}[label=(\alph*)]
+    \item Let G be a graph. For each box in the set of boxes, create a corresponding vertex. If two of the boxes overlap, create an edge between corresponding the vertices. This way, if Box A overlaps with Box B and Box C, there are edges between Box A and Box B and between Box A and Box C. However, if boxes B and C do not overlap, there is no edge between them. In this situation Box A has an incidence of 2. Finding the $MaxClique$ will tell us the maximum number of boxes which overlap.\\
+    \item FIXME\\
+    \item $MaxClique$ is in NP-Hard and we know how to solve $BoxDepth$ with the $MaxClique$ algorithm. However, we don't know how to solve an arbitrary $MaxClique$ problem with the $BoxDepth$ algorithm. Just because a polynomial time algorithm can be solved with a slower non-deterministic polynomial time algorithm, this doesn't mean that every problem which can be solved with the non-deterministic algorithm can be solved with a polynomial time algorithm. This only means that a subset of $MaxClique$ problems can be solved with $BoxDepth$, and not necessarily that all of them can.
+\end{enumerate}
+
+\section*{Problem 3}
+\begin{enumerate}[label=(\alph*)]
+    \item Since the equation is a series of groups which are all combined with logical or, if a single one of them is set to true, then the whole equation is true. Simply try to set the first equation to true. If the first group is a contradiction, move on to the next group. If they are all contradictions, no assignment of the variable which fulfills a single one of the groups exists, and the equation will never be true. This takes a worst case runtime of $O(n)$.\\
+    \item The process of distribution takes exponential time. In the worst case, each element in every group of three elements must be conjoined with ever other element. This gives a worst case runtime of $O(3^n)$. Since a reduction to $P$ must take polynomial time, this is not a valid reduction from DNF-SAT to 3SAT.\\
+\end{enumerate}
+
+\section*{Problem 6}
+\begin{enumerate}[label=(\alph*)]
+    \item Given a black box algorithm which can find a Hamiltonian Cycle, to find a Hamiltonian Path, simply run the cycle finder. If it finds a cycle, pick a random edge in the cycle and remove it from the path. This will give you a Hamiltonian Path. If no cycle was found, then pick two vertices and add an edge between them. Then run the cycle finder again. If it finds a cycle, remove the new edge from the graph and return it as the path. If it does not find a cycle, repeat for every combination of vertices. If no cycle is ever found, there is no Hamiltonian Path.\\
+    \item Given a black box algorithm which can find a Hamiltonian Path we must find a Hamiltonian Cycle. FIXME
+\end{enumerate}
+
+\section*{Challenge Problem}
+\begin{enumerate}[label=(\alph*)]
+    \item First show that a polynomial time algorithm that makes a constant number of calls to a polynomial time algorithm it polynomial time. The easiest way to solve this is to note that polynomials are closed under multiplication, and that a constant is a degree one polynomial. In other words, Given the polynomial $P_1$ and the polynomial $P_2$ their product $P_1 \times P_2$ is a polynomial.\\
+    \item Next we will show that a polynomial number of calls to a polynomial time subroutine may result in an exponential-time algorithm. Consider the doubling function $\Lambda x \rightarrow x x$. This function takes an input of size $n$ and returns an output of size $2n$. This function takes $O(n)$ time and is in $P$. Now consider a function which takes a function and some input and feeds the input to the function, and then feeds the output of the function back into the function $m$ times. $m$ is a polynomial, but this function has the runtime $O(2^n)$ because the size of the input doubles each invocation.
+\end{enumerate}
+\end{document}

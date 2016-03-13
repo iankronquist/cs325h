@@ -4,14 +4,13 @@
 int drop_balls(int node, int balls, int max);
 
 int main() {
-    int num_lines;
+    int num_lines, i, max;
     scanf("%d", &num_lines);
-    int i;
     for (i = 0; i < num_lines; i++) {
         int I, D;
         scanf("%d %d", &D, &I);
         /* max = 2 raised to the D */
-        int max = (1 << D)-1;
+        max = (1 << D)-1;
         printf("%d\n", drop_balls(1, I, max));
     }
 
